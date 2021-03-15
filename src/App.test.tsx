@@ -72,6 +72,6 @@ describe('App tests suite', () => {
     render(<App />);
     await screen.findByText(/Signed in as :/)
 
-    expect(screen.getByRole('checkbox')).toBeInTheDocument()
+    expect(screen.getByRole('heading')).toBeInTheDocument()
   });
 })

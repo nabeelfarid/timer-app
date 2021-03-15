@@ -27,7 +27,7 @@ function App() {
 
   return (
     <div>
-      <div>{title}</div>
+      <h1>{title}</h1>
       <div>
         {user? <p>Signed in as : {user}</p> : null}
       </div>
