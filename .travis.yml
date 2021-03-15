@@ -6,11 +6,13 @@ script:
   - npm install
   - npm test
   - npm run build
-  - npm install --g surge
-  - surge ./build https://timerapp.nabeelfarid.surge.sh --token $SURGE_TOKEN
 
 deploy:
   provider: surge
   edge: true
   project: ./build/
   domain: timerapp.nabeelfarid.surge.sh
+  on:
+    branch: main
+
+
