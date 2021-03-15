@@ -6,7 +6,7 @@ script:
   - npm install
   - npm test
   - npm run build
-  - npm install surge
+  - npm install --g surge
 
 deploy:
   provider: surge
