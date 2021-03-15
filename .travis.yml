@@ -11,6 +11,4 @@ deploy:
   provider: surge
   domain: timerapp.nabeelfarid.surge.sh
   project: ./build/
-  on:
-    branch: master
 
