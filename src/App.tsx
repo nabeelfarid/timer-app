@@ -7,7 +7,7 @@ const getUser = () =>
 }
 
 function App() {
-  const title = 'Hello React'
+  const title = 'Hello React :)'
   const [value, setValue] = useState('')
   const [user, setUser] = useState('');
 

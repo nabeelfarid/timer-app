@@ -19,7 +19,7 @@ import userEvent from '@testing-library/user-event';
 
 describe('App tests suite', () => {
 
-  test('renders App component', async() => {
+  test('renders App component', async () => {
 
     render(<App />);
 
@@ -49,7 +49,7 @@ describe('App tests suite', () => {
 
     await screen.findByText(/Signed in as :/)
 
-    screen.debug();
+    // screen.debug();
     expect(screen.queryByText(/Results for Javascript/)).toBeNull();
 
 
@@ -62,10 +62,16 @@ describe('App tests suite', () => {
     userEvent.type(screen.getByRole('textbox'), 'Javascript')
 
 
-    screen.debug();
+    // screen.debug();
     expect(screen.getByText(/Results for Javascript/)).toBeInTheDocument();
   });
 
 
+  test('renders App component', async () => {
 
+    render(<App />);
+    await screen.findByText(/Signed in as :/)
+
+    expect(screen.getByRole('checkbox')).toBeInTheDocument()
+  });
 })
