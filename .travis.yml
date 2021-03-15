@@ -7,7 +7,7 @@ script:
   - npm test
   - npm run build
   - npm install --g surge
-  - run: surge ./build https://timerapp.nabeelfarid.surge.sh --token $SURGE_TOKEN
+  - surge ./build https://timerapp.nabeelfarid.surge.sh --token $SURGE_TOKEN
 
 deploy:
   provider: surge
