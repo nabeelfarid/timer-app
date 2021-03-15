@@ -9,6 +9,8 @@ script:
 
 deploy:
   provider: surge
-  domain: timerapp.nabeelfarid.surge.sh
   project: ./build/
-
+  skip_cleanup: true
+  domain: timerapp.nabeelfarid.surge.sh
+  on:
+    branch: master
