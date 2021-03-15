@@ -10,6 +10,6 @@ script:
 
 deploy:
   provider: surge
+  edge: true
   project: ./build/
-  skip_cleanup: true
   domain: timerapp.nabeelfarid.surge.sh
