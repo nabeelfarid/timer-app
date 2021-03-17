@@ -10,15 +10,15 @@ describe('Timer App', () => {
   // Fake timers using Jest
   beforeEach(() => {
     jest.useFakeTimers();
-    
+
   })
   // Running all pending timers and switching to real timers using Jest
   afterEach(() => {
-    jest.clearAllTimers();
-    act(() => {
-      jest.runOnlyPendingTimers()
-      jest.useRealTimers()
-    });
+    // jest.clearAllTimers();
+    // act(() => {
+    //   jest.runOnlyPendingTimers()
+    //   jest.useRealTimers()
+    // });
   })
 
   test('Should have a button to Start the timer', () => {
@@ -111,7 +111,7 @@ describe('Timer App', () => {
 
   });
 
-  test('WHEN Timer is started, AFTER 5 secs it should count down to 24:55  ', async () => {
+  test('WHEN Timer is started, AFTER 5 secs it should count down to 24:55  ', () => {
     //Act
     render(<App />)
     userEvent.click(screen.getByRole('button', { name: /start/i }))
@@ -121,11 +121,25 @@ describe('Timer App', () => {
     });
 
     //Assert
-    expect(await screen.findByRole('timer')).toHaveTextContent(/24:55/i);
+    expect(screen.getByRole('timer')).toHaveTextContent(/24:55/i);
 
   });
 
-  test('AFTER 60 secs timer should count down to 24:00  ', async () => {
+  test('WHEN Timer is started, AFTER 30 secs it should count down to 24:30  ', () => {
+    //Act
+    render(<App />)
+    userEvent.click(screen.getByRole('button', { name: /start/i }))
+
+    act(() => {
+      jest.advanceTimersByTime(30000);
+    });
+
+    //Assert
+    expect(screen.getByRole('timer')).toHaveTextContent(/24:30/i);
+
+  });
+
+  test('AFTER 60 secs, timer should count down to 24:00  ', () => {
     //Act
     render(<App />)
     userEvent.click(screen.getByRole('button', { name: /start/i }))
@@ -135,47 +149,118 @@ describe('Timer App', () => {
     });
 
     //Assert
-    expect(await screen.findByRole('timer')).toHaveTextContent(/24:00/i);
+    expect(screen.getByRole('timer')).toHaveTextContent(/24:00/i);
 
   });
 
-  test('AFTER 25 min timer should reach 00:00  ', async () => {
-    //Act
+  test('AFTER 25 min timer should automatically stop at 00:00  ', () => {
+    //ARRANGE
     render(<App />)
     userEvent.click(screen.getByRole('button', { name: /start/i }))
 
+    //ACT
     act(() => {
-      jest.advanceTimersByTime(60000 * 25);
-    });
-
-    //Assert
-    expect(await screen.findByRole('timer')).toHaveTextContent(/00:00/i);
-
-  });
-
-  test('AFTER passing over 25 min timer should stop at 00:00  ', async () => {
-    //Act
-    render(<App />)
-    userEvent.click(screen.getByRole('button', { name: /start/i }))
-
-    act(() => {
+      //go a second beyond 25 min
       jest.advanceTimersByTime((60000 * 25) + 1000);
     });
 
     //Assert
-    expect(await screen.findByRole('timer')).toHaveTextContent(/00:00/i);
-    expect(await screen.findByRole('button', { name: /start/i })).toBeEnabled();
-    expect(await screen.findByRole('button', { name: /stop/i })).toBeDisabled();
+    //timer should stay at 00:00
+    expect(screen.getByRole('timer')).toHaveTextContent(/00:00/i);
+    expect(screen.getByRole('button', { name: /start/i })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /stop/i })).toBeDisabled();
+  });
+
+  test('AFTER 25 min timer, further RESUMING timer should stay at 00:00  ', () => {
+    //ARRANGE
+    render(<App />)
+    userEvent.click(screen.getByRole('button', { name: /start/i }))
+
+    act(() => {
+      jest.advanceTimersByTime((60000 * 25));
+    });
+
+    //timer should pause at 00 
+    expect(screen.getByRole('timer')).toHaveTextContent(/00:00/i);
+    
+    //ACT
+    //press start again
+    userEvent.click(screen.getByRole('button', { name: /start/i }))
+    //advance timer
+    act(() => {
+      jest.advanceTimersByTime((60000));
+    });
+
+    //Assert
+    //timer should stay at 00:00
+    expect(screen.getByRole('timer')).toHaveTextContent(/00:00/i);
+    expect(screen.getByRole('button', { name: /start/i })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /stop/i })).toBeDisabled();
+
+  });
+
+
+  test('WHEN stopped, timer should pause', () => {
+    //Act
+    render(<App />)
+    userEvent.click(screen.getByRole('button', { name: /start/i }))
+
+    act(() => {
+      jest.advanceTimersByTime(60000 * 5);
+    });
+
+    expect(screen.getByRole('timer')).toHaveTextContent(/20:00/i);
+
+    //stop timer
+    userEvent.click(screen.getByRole('button', { name: /stop/i }))
+
+    //run timer a bit more
+    act(() => {
+      jest.advanceTimersByTime(60000);
+    });
+
+    //Assert
+    //timer should still display the same value where it was stopped
+    expect(screen.getByRole('timer')).toHaveTextContent(/20:00/i);
+    expect(screen.getByRole('button', { name: /start/i })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /stop/i })).toBeDisabled();
+
+  });
+
+  test('RESET timer, Should clear and reset timer back to 25:00  ', () => {
+    //ARRANGE
+    render(<App />)
+    userEvent.click(screen.getByRole('button', { name: /start/i }))
+
+    act(() => {
+      jest.advanceTimersByTime(60000);
+    });
+
+    expect(screen.getByRole('timer')).toHaveTextContent(/24:00/i);
+
+    //ACT
+    userEvent.click(screen.getByRole('button', { name: /reset/i }))
+
+    act(() => {
+      //run a bit more timer, This should not do anything as Reset has already claer the timer
+      jest.advanceTimersByTime(60000);
+    });
+
+    //Assert
+    // timer has been cleared and reset back to 25
+    expect(screen.getByRole('timer')).toHaveTextContent(/25:00/i);
+    expect(screen.getByRole('button', { name: /start/i })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /stop/i })).toBeDisabled();
 
   });
 
   test('AFTER App component is unmounted, timer should be cleaned up  ', () => {
-    
+
     //ARRANGE
     jest.spyOn(global, 'clearInterval');
 
     //ACT
-    const {unmount } = render(<App />)
+    const { unmount } = render(<App />)
     //start timer
     userEvent.click(screen.getByRole('button', { name: /start/i }))
     //for 5 secs
@@ -190,7 +275,7 @@ describe('Timer App', () => {
     //ASSERT timer has been cleared on unmount
     expect(clearInterval).toHaveBeenCalledTimes(1);
 
-    
+
   });
 
 })

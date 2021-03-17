@@ -1,92 +1,88 @@
-import { useEffect, useState } from 'react';
-import { idText } from 'typescript';
+import { useEffect, useRef, useState } from 'react';
 import './App.css';
 
 
 const App = () => {
   const [startDisabled, setStartDisabled] = useState(false)
   const [stopDisabled, setStopDisabled] = useState(true)
-  const [mins, setMins] = useState<number>(25);
-  const [secs, setSecs] = useState<number>(0);
-  // const [startTimer, setStartTimer] = useState(false);
-
-  // const zeroPad = (num: number, places: number) => String(num).padStart(places, '0')
-  let timer: NodeJS.Timeout;
-  const toggleButtons = () => {
-    setStartDisabled(!startDisabled);
-    setStopDisabled(!stopDisabled);
-  }
+  const [forceRender, setForceRender] = useState(true)
+  const mins = useRef<number>(25);
+  const secs= useRef<number>(0);
+  const timerInterval = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    // console.log('start effect:');
-
     return () => {
-      if (timer) {
-        // console.log('clear timer', startTimer)
-        clearTimer();
-      }
+      clearTimer();
     }
-
   }, [])
 
+  useEffect(()=>{
+
+  }, [forceRender])
+
   const clearTimer = () => {
-    if (timer) {
-      clearInterval(timer);
+    if (timerInterval.current) {
+      // console.log('clearing timer', timerInterval.current);
+      clearInterval(timerInterval.current);
     }
   }
 
-  const resetTimer = () => {
+  const stopTimer = () => {
     clearTimer();
-    setSecs(0);
-    setMins(0);
     setStartDisabled(false);
     setStopDisabled(true);
   }
 
   const startTimer = () => {
+    
+    setStartDisabled(true);
+    setStopDisabled(false);
+    //clear any existing timer
     clearTimer();
-
-    timer = setInterval(() => {
+    //set interval
+    timerInterval.current = setInterval(() => {
       //Due to closures SetInterval keeps referencing to old values
-      setSecs(prevSecs => {
-        if (prevSecs === 0) {
+        if (secs.current === 0) {
           //decrement minute value
-          setMins(prevMins => {
-            if(prevMins === 0) {
-              resetTimer();
-              return 0;
-            }
-            return prevMins - 1
-          });             
-          //set secs back to 59
-          return 59;
+            if(mins.current === 0) {
+              stopTimer();
+            } else {
+              mins.current = mins.current - 1
+              //set secs back to 59
+              secs.current = 59
+            } 
         } else {
           //othereise keep decrementing secs until 0
-          return prevSecs - 1
+          secs.current = secs.current - 1
         }
-      });
+        setForceRender(prev => !prev);
+      
     }, 1000);
+
+    // console.log('timer created', timerInterval.current)
   }
 
   const onStartHandler = (e: React.MouseEvent<HTMLElement>) => {
-    toggleButtons();
     startTimer();
   }
 
   const onStopHandler = (e: React.MouseEvent<HTMLElement>) => {
-    toggleButtons();
+    stopTimer();
   }
 
   const onResetHandler = (e: React.MouseEvent<HTMLElement>) => {
+    clearTimer();
+    mins.current = 25;
+    secs.current = 0;
     setStartDisabled(false);
     setStopDisabled(true);
-
+    setForceRender(prev => !prev);
   }
 
   return (
     <div>
       <h1>Welcome nabeel!</h1>
-      <div role='timer'>{String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}</div>
+      <div role='timer'>{String(mins.current).padStart(2, '0')}:{String(secs.current).padStart(2, '0')}</div>
       <button aria-label='Start' onClick={onStartHandler} disabled={startDisabled}>Start</button>
       <button aria-label='Stop' onClick={onStopHandler} disabled={stopDisabled} >Stop</button>
       <button aria-label='Reset' onClick={onResetHandler} >Reset</button>
