@@ -5,20 +5,17 @@ import './App.css';
 const App = () => {
   const [startDisabled, setStartDisabled] = useState(false)
   const [stopDisabled, setStopDisabled] = useState(true)
-  const [forceRender, setForceRender] = useState(true)
+  const [,setForceRender] = useState(true)
   const mins = useRef<number>(25);
-  const secs= useRef<number>(0);
+  const secs = useRef<number>(0);
   const timerInterval = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
+    //clear timer when component is unmounted
     return () => {
       clearTimer();
     }
   }, [])
-
-  useEffect(()=>{
-
-  }, [forceRender])
 
   const clearTimer = () => {
     if (timerInterval.current) {
@@ -27,39 +24,49 @@ const App = () => {
     }
   }
 
-  const stopTimer = () => {
-    clearTimer();
-    setStartDisabled(false);
-    setStopDisabled(true);
-  }
-
   const startTimer = () => {
-    
+
     setStartDisabled(true);
     setStopDisabled(false);
     //clear any existing timer
     clearTimer();
     //set interval
     timerInterval.current = setInterval(() => {
-      //Due to closures SetInterval keeps referencing to old values
-        if (secs.current === 0) {
-          //decrement minute value
-            if(mins.current === 0) {
-              stopTimer();
-            } else {
-              mins.current = mins.current - 1
-              //set secs back to 59
-              secs.current = 59
-            } 
+      //Due to closures, SetInterval keeps referencing to te initial values of min and sec
+      //Therefore making use of useRefs
+      if (secs.current === 0) {
+        //decrement minute value
+        if (mins.current === 0) {
+          stopTimer();
         } else {
-          //othereise keep decrementing secs until 0
-          secs.current = secs.current - 1
+          mins.current = mins.current - 1
+          secs.current = 59
         }
-        setForceRender(prev => !prev);
-      
+      } else {
+        //othereise keep decrementing secs until 0
+        secs.current = secs.current - 1
+      }
+      // Since updating useref doesn't notify render, using a useState to update render 
+      setForceRender(prev => !prev);
+
     }, 1000);
 
     // console.log('timer created', timerInterval.current)
+  }
+
+  const stopTimer = () => {
+    clearTimer();
+    setStartDisabled(false);
+    setStopDisabled(true);
+  }
+
+  const resetTimer =() => {
+    clearTimer();
+    mins.current = 25;
+    secs.current = 0;
+    setStartDisabled(false);
+    setStopDisabled(true);
+    setForceRender(prev => !prev);
   }
 
   const onStartHandler = (e: React.MouseEvent<HTMLElement>) => {
@@ -71,12 +78,7 @@ const App = () => {
   }
 
   const onResetHandler = (e: React.MouseEvent<HTMLElement>) => {
-    clearTimer();
-    mins.current = 25;
-    secs.current = 0;
-    setStartDisabled(false);
-    setStopDisabled(true);
-    setForceRender(prev => !prev);
+    resetTimer();
   }
 
   return (
