@@ -5,7 +5,7 @@ import './App.css';
 const App = () => {
   const [startDisabled, setStartDisabled] = useState(false)
   const [stopDisabled, setStopDisabled] = useState(true)
-  const [,setForceRender] = useState(true)
+  const [, setForceRender] = useState(true)
   const mins = useRef<number>(25);
   const secs = useRef<number>(0);
   const timerInterval = useRef<NodeJS.Timeout>();
@@ -60,7 +60,7 @@ const App = () => {
     setStopDisabled(true);
   }
 
-  const resetTimer =() => {
+  const resetTimer = () => {
     clearTimer();
     mins.current = 25;
     secs.current = 0;
@@ -82,13 +82,13 @@ const App = () => {
   }
 
   return (
-    <div>
-      <h1>Welcome nabeel!</h1>
-      <div role='timer'>{String(mins.current).padStart(2, '0')}:{String(secs.current).padStart(2, '0')}</div>
-      <button aria-label='Start' onClick={onStartHandler} disabled={startDisabled}>Start</button>
-      <button aria-label='Stop' onClick={onStopHandler} disabled={stopDisabled} >Stop</button>
-      <button aria-label='Reset' onClick={onResetHandler} >Reset</button>
-
+    <div className='d-flex justify-content-center' style={{ minWidth: '320px' }}>
+      <div className='text-center shadow my-4 p-4'>
+        <h1 style={{ fontSize: '6em' }} role='timer'>{String(mins.current).padStart(2, '0')}:{String(secs.current).padStart(2, '0')}</h1>
+        <button className='btn-lg w-100 rounded-pill my-2 btn-success' aria-label='Start' onClick={onStartHandler} disabled={startDisabled}>Start</button>
+        <button className='btn-lg w-100 rounded-pill my-2 btn-danger ' aria-label='Stop' onClick={onStopHandler} disabled={stopDisabled} >Stop</button>
+        <button className='btn-lg w-100 rounded-pill my-2 btn-warning' aria-label='Reset' onClick={onResetHandler} >Reset</button>
+      </div>
     </div>
   );
 }
