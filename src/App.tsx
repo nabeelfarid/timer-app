@@ -2,13 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import './App.css';
 
 
+const INITIAL_MINS = 25;
+const INITIAL_SECS = 0;
+
 const App = () => {
   const [startDisabled, setStartDisabled] = useState(false)
   const [stopDisabled, setStopDisabled] = useState(true)
-  const [, setForceRender] = useState(true)
-  const mins = useRef<number>(25);
-  const secs = useRef<number>(0);
+  const mins = useRef<number>(INITIAL_MINS);
+  const secs = useRef<number>(INITIAL_SECS);
   const timerInterval = useRef<NodeJS.Timeout>();
+  const [timerDisplay, setTimerDisplay] = useState({ mins: mins.current, secs: secs.current })
 
   useEffect(() => {
     //clear timer when component is unmounted
@@ -32,7 +35,7 @@ const App = () => {
     clearTimer();
     //set interval
     timerInterval.current = setInterval(() => {
-      //Due to closures, SetInterval keeps referencing to te initial values of min and sec
+      //Due to closures, SetInterval keeps referencing to te initial values of mins and secs
       //Therefore making use of useRefs
       if (secs.current === 0) {
         //decrement minute value
@@ -46,8 +49,9 @@ const App = () => {
         //othereise keep decrementing secs until 0
         secs.current = secs.current - 1
       }
-      // Since updating useref doesn't notify render, using a useState to update render 
-      setForceRender(prev => !prev);
+      // Since updating useRefs doesn't notify render, 
+      // we are using a timerDisplay useState to notify render
+      setTimerDisplay(() => ({ mins: mins.current, secs: secs.current }))
 
     }, 1000);
 
@@ -62,11 +66,11 @@ const App = () => {
 
   const resetTimer = () => {
     clearTimer();
-    mins.current = 25;
-    secs.current = 0;
+    mins.current = INITIAL_MINS;
+    secs.current = INITIAL_SECS;
+    setTimerDisplay({ mins: mins.current, secs: secs.current });
     setStartDisabled(false);
     setStopDisabled(true);
-    setForceRender(prev => !prev);
   }
 
   const onStartHandler = (e: React.MouseEvent<HTMLElement>) => {
@@ -84,7 +88,7 @@ const App = () => {
   return (
     <div className='d-flex justify-content-center' style={{ minWidth: '320px' }}>
       <div className='text-center shadow my-4 p-4'>
-        <h1 style={{ fontSize: '6em' }} role='timer'>{String(mins.current).padStart(2, '0')}:{String(secs.current).padStart(2, '0')}</h1>
+        <h1 style={{ fontSize: '6em' }} role='timer'>{String(timerDisplay.mins).padStart(2, '0')}:{String(timerDisplay.secs).padStart(2, '0')}</h1>
         <button className='btn-lg w-100 rounded-pill my-2 btn-success' aria-label='Start' onClick={onStartHandler} disabled={startDisabled}>Start</button>
         <button className='btn-lg w-100 rounded-pill my-2 btn-danger ' aria-label='Stop' onClick={onStopHandler} disabled={stopDisabled} >Stop</button>
         <button className='btn-lg w-100 rounded-pill my-2 btn-warning' aria-label='Reset' onClick={onResetHandler} >Reset</button>

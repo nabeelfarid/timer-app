@@ -46,6 +46,14 @@ describe('Timer App', () => {
     expect(screen.getByRole('button', { name: /stop/i })).toBeDisabled();
   });
 
+  test('SHOULD have a timer default to 25:00 on load', () => {
+    //Act
+    render(<App />)
+
+    //Assert
+    expect(screen.getByRole('timer')).toHaveTextContent(/25:00/i);
+  });
+
   test('WHEN Timer is started, SHOULD disable Start button AND enable Stop button  ', () => {
     //Act
     render(<App />)
@@ -126,7 +134,7 @@ describe('Timer App', () => {
     expect(screen.getByRole('timer')).toHaveTextContent(/24:00/i);
   });
 
-  test('AFTER 25 min timer should automatically stop at 00:00  ', () => {
+  test('AFTER 25 min, timer should automatically stop at 00:00  ', () => {
     //ARRANGE
     render(<App />)
     userEvent.click(screen.getByRole('button', { name: /start/i }))
@@ -144,7 +152,7 @@ describe('Timer App', () => {
     expect(screen.getByRole('button', { name: /stop/i })).toBeDisabled();
   });
 
-  test('AFTER 25 min timer, further RESUMING timer should stay at 00:00  ', () => {
+  test('AFTER 25 min, further RESUMING timer should stay at 00:00  ', () => {
     //ARRANGE
     render(<App />)
     userEvent.click(screen.getByRole('button', { name: /start/i }))
@@ -172,7 +180,7 @@ describe('Timer App', () => {
   });
 
 
-  test('WHEN stopped, timer should pause', () => {
+  test('WHEN stopped, timer should stopeed/pause', () => {
     //ARRANGE
     render(<App />)
     userEvent.click(screen.getByRole('button', { name: /start/i }))
@@ -195,6 +203,32 @@ describe('Timer App', () => {
     expect(screen.getByRole('timer')).toHaveTextContent(/20:00/i);
     expect(screen.getByRole('button', { name: /start/i })).toBeEnabled();
     expect(screen.getByRole('button', { name: /stop/i })).toBeDisabled();
+  });
+
+  test('WHEN stopped and then re-started, timer should re-start from the same point where it was stopped', () => {
+    //ARRANGE
+    render(<App />)
+    userEvent.click(screen.getByRole('button', { name: /start/i }))
+    //run timer for 5 min
+    act(() => {
+      jest.advanceTimersByTime(60000 * 5);
+    });
+    //Stop the timer 
+    userEvent.click(screen.getByRole('button', { name: /stop/i }))
+    //make sure timer has been updated
+    expect(screen.getByRole('timer')).toHaveTextContent(/20:00/i);
+    
+    //ACT
+    //Restart the timer
+    userEvent.click(screen.getByRole('button', { name: /start/i }))    
+    //run timer one more min
+    act(() => {
+      jest.advanceTimersByTime(60000);
+    });
+
+    //Assert
+    //timer should have started from where it was stopped eariler
+    expect(screen.getByRole('timer')).toHaveTextContent(/19:00/i);
   });
 
   test('WHEN reset, Should clear and reset timer back to 25:00  ', () => {
