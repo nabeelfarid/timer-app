@@ -18,7 +18,7 @@ describe('Timer App', () => {
     render(<App />)
 
     //Assert
-    expect(screen.getByRole('button', { name: /staart/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /start/i })).toBeInTheDocument();
   });
 
   test('SHOULD have a button to Stop the timer', () => {
